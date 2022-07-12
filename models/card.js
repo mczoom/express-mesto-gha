@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 const cardsSchema = new mongoose.Schema({
   name: {
     type: String,
