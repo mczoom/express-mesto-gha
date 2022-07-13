@@ -3,7 +3,7 @@ const Card = require('../models/card');
 module.exports.getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch((err) => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.createCard = (req, res) => {
@@ -12,7 +12,7 @@ module.exports.createCard = (req, res) => {
 
   Card.create({ name, link, owner })
     .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.deleteCard = (req, res) => {
@@ -26,7 +26,7 @@ module.exports.deleteCard = (req, res) => {
           .then((cardData) => res.send(cardData));
       }
     })
-    .catch((err) => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(
@@ -35,7 +35,7 @@ module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(
   { new: true },
 )
   .then((likes) => res.send({ data: likes }))
-  .catch((err) => res.status(500).send({ message: 'Произошла ошибка' }));
+  .catch(() => res.send({ message: 'Произошла ошибка' }));
 
 module.exports.dislikeCard = (req, res) => Card.findByIdAndUpdate(
   req.params.cardId,
@@ -43,4 +43,4 @@ module.exports.dislikeCard = (req, res) => Card.findByIdAndUpdate(
   { new: true },
 )
   .then((likes) => res.send({ data: likes }))
-  .catch((err) => res.status(500).send({ message: 'Произошла ошибка' }));
+  .catch(() => res.send({ message: 'Произошла ошибка' }));
