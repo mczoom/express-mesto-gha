@@ -33,7 +33,11 @@ module.exports.setUser = (req, res) => {
 
   User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
     .then((user) => res.send({ data: user }))
-    .catch(() => res.send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        throw new Error(err.message);
+      }
+    });
 };
 
 module.exports.setAvatar = (req, res) => {
