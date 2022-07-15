@@ -1,5 +1,5 @@
 const User = require('../models/user');
-// const BadRequestError = require('../errors/BadRequestError');
+const BadRequestError = require('../errors/BadRequestError');
 // const NotFoundError = require('../errors/NotFoundError');
 // const DefaultError = require('../errors/DefaultError');
 
@@ -27,8 +27,14 @@ module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .then((user) => res.send({ data: user }))
-    .catch((err) => res.send({ message: err.message }));
+    .then((user) => res.status(200).send({ data: user }))
+    .catch((err) => {
+      if (err.name === 'BadRequestError') {
+        res.status(400).send({ message: 'Переданы некорректные данные' });
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' });
+      }
+    });
 };
 
 module.exports.setUser = (req, res) => {
