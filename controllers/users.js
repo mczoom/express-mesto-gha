@@ -1,13 +1,12 @@
 const User = require('../models/user');
-
-const BAD_REQUEST_ERROR = 400;
-const NOT_FOUND_ERROR = 404;
-const DEFAULT_ERROR = 500;
+// const BadRequestError = require('../errors/BadRequestError');
+// const NotFoundError = require('../errors/NotFoundError');
+// const DefaultError = require('../errors/DefaultError');
 
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => res.status(DEFAULT_ERROR).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.getUser = (req, res) => {
@@ -15,9 +14,11 @@ module.exports.getUser = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST_ERROR).send({ message: 'Некорректные данные' });
+        res.status(400).send({ message: 'Некорректные данные' });
+      } else if (err.statusCode === 404) {
+        res.status(404).send({ message: 'Произошла ошибка' });
       } else {
-        res.status(DEFAULT_ERROR).send({ message: 'Произошла ошибка' });
+        res.status(500).send({ message: 'Произошла ошибка' });
       }
     });
 };
