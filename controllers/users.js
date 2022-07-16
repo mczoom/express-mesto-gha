@@ -8,7 +8,7 @@ module.exports.getUsers = (req, res) => {
 };
 
 module.exports.getUser = (req, res) => {
-  User.findById(req.params._id)
+  User.findById(req.params.userId)
     .orFail(() => {
       throw new NotFoundError('Пользователь не найден');
     })
@@ -69,7 +69,7 @@ module.exports.setAvatar = (req, res) => {
     .then((url) => res.status(200).send({ data: url }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Переданы некорректные данные' })
+        res.status(400).send({ message: 'Переданы некорректные данные' });
       } else if (err.statusCode === 404) {
         res.status(404).send({ message: err.errorMessage });
       } else {

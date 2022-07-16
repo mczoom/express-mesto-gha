@@ -15,23 +15,23 @@ module.exports.createCard = (req, res) => {
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные' })
+        res.status(400).send({ message: 'Переданы некорректные данные' });
       }
       res.status(500).send({ message: 'Произошла ошибка' });
     });
 };
 
 module.exports.deleteCard = (req, res) => {
-  const { _cardId } = req.params;
+  const { cardId } = req.params;
 
-  Card.findByIdAndRemove(_cardId)
+  Card.findByIdAndRemove(cardId)
     .orFail(() => {
       throw new NotFoundError('Карточка не найдена');
     })
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Переданы некорректные данные' })
+        res.status(400).send({ message: 'Переданы некорректные данные' });
       } else if (err.statusCode === 404) {
         res.status(404).send({ message: err.errorMessage });
       } else {
