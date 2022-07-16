@@ -14,10 +14,6 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Страница не найдена' });
-});
-
 app.use((req, res, next) => {
   req.user = {
     _id: '62cf3de4f19f06f2b6b80e63',
@@ -27,6 +23,9 @@ app.use((req, res, next) => {
 
 app.use('/', usersRouter);
 app.use('/', cardsRouter);
+app.use('*', (req, res) => {
+  res.status(404).send({ message: 'Страница не найдена' });
+});
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
