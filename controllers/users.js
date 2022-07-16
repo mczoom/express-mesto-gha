@@ -1,6 +1,6 @@
 const User = require('../models/user');
 const BadRequestError = require('../errors/BadRequestError');
-// const NotFoundError = require('../errors/NotFoundError');
+const NotFoundError = require('../errors/NotFoundError');
 // const DefaultError = require('../errors/DefaultError');
 
 module.exports.getUsers = (req, res) => {
@@ -11,6 +11,9 @@ module.exports.getUsers = (req, res) => {
 
 module.exports.getUser = (req, res) => {
   User.findById(req.params._id)
+    .orFail(() => {
+      throw new NotFoundError('Пользователь не найден');
+    })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'CastError') {

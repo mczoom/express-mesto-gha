@@ -1,4 +1,7 @@
 const Card = require('../models/card');
+const BadRequestError = require('../errors/BadRequestError');
+const NotFoundError = require('../errors/NotFoundError');
+// const DefaultError = require('../errors/DefaultError');
 
 module.exports.getCards = (req, res) => {
   Card.find({})
@@ -34,8 +37,19 @@ module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(
   { $addToSet: { likes: req.user._id } },
   { new: true },
 )
-  .then((likes) => res.send({ data: likes }))
-  .catch(() => res.send({ message: 'Произошла ошибка' }));
+  .orFail(() => {
+    throw new NotFoundError('Карточка не найдена')
+  })
+  .then((likes) => res.status(200).send({ data: likes }))
+  .catch((err) => {
+    if (err.name === 'CastError') {
+      res.status(400).send({ message: 'Некорректные данные' });
+    } else if (err.statusCode === 404) {
+      res.status(404).send({ message: 'Произошла ошибка' });
+    } else {
+      res.status(500).send({ message: 'Произошла ошибка' });
+    }
+  });
 
 module.exports.dislikeCard = (req, res) => Card.findByIdAndUpdate(
   req.params.cardId,
