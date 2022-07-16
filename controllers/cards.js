@@ -4,7 +4,7 @@ const NotFoundError = require('../errors/NotFoundError');
 module.exports.getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res.send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
 };
 
 module.exports.createCard = (req, res) => {
@@ -17,7 +17,7 @@ module.exports.createCard = (req, res) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные' });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(500).send({ message: 'Ошибка сервера' });
       }
     });
 };
@@ -36,7 +36,7 @@ module.exports.deleteCard = (req, res) => {
       } else if (err.statusCode === 404) {
         res.status(404).send({ message: err.errorMessage });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(500).send({ message: 'Ошибка сервера' });
       }
     });
 };
@@ -49,14 +49,14 @@ module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(
   .orFail(() => {
     throw new NotFoundError('Карточка не найдена');
   })
-  .then((card) => res.status(200).send({ data: card }))
+  .then((likes) => res.status(200).send({ data: likes }))
   .catch((err) => {
     if (err.name === 'CastError') {
       res.status(400).send({ message: 'Некорректные данные' });
     } else if (err.statusCode === 404) {
       res.status(404).send({ message: 'Произошла ошибка' });
     } else {
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(500).send({ message: 'Ошибка сервера' });
     }
   });
 
@@ -68,13 +68,13 @@ module.exports.dislikeCard = (req, res) => Card.findByIdAndUpdate(
   .orFail(() => {
     throw new NotFoundError('Карточка не найдена');
   })
-  .then((card) => res.status(200).send({ data: card }))
+  .then((likes) => res.status(200).send({ data: likes }))
   .catch((err) => {
     if (err.name === 'CastError') {
       res.status(400).send({ message: 'Некорректные данные' });
     } else if (err.statusCode === 404) {
       res.status(404).send({ message: 'Произошла ошибка' });
     } else {
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(500).send({ message: 'Ошибка сервера' });
     }
   });

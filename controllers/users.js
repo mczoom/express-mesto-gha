@@ -19,7 +19,7 @@ module.exports.getUser = (req, res) => {
       } else if (err.statusCode === 404) {
         res.status(404).send({ message: 'Произошла ошибка' });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(500).send({ message: 'Ошибка сервера' });
       }
     });
 };
@@ -33,7 +33,7 @@ module.exports.createUser = (req, res) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные' });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(500).send({ message: 'Ошибка сервера' });
       }
     });
 };
@@ -53,7 +53,7 @@ module.exports.updateUserInfo = (req, res) => {
       } else if (err.statusCode === 404 || err.name === 'CastError') {
         res.status(404).send({ message: err.errorMessage });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(500).send({ message: 'Ошибка сервера' });
       }
     });
 };
@@ -73,7 +73,7 @@ module.exports.setAvatar = (req, res) => {
       } else if (err.statusCode === 404) {
         res.status(404).send({ message: err.errorMessage });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(500).send({ message: 'Ошибка сервера' });
       }
     });
 };
