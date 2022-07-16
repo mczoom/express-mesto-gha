@@ -1,7 +1,5 @@
 const User = require('../models/user');
-const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
-// const DefaultError = require('../errors/DefaultError');
 
 module.exports.getUsers = (req, res) => {
   User.find({})
@@ -32,7 +30,7 @@ module.exports.createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
-      if (err.name === 'BadRequestError') {
+      if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные' });
       } else {
         res.status(500).send({ message: 'Произошла ошибка' });
@@ -40,13 +38,24 @@ module.exports.createUser = (req, res) => {
     });
 };
 
-module.exports.setUser = (req, res) => {
+module.exports.updateUserInfo = (req, res) => {
   const { name, about } = req.body;
   const userId = req.user._id;
 
   User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
-    .then((user) => res.send({ data: user }))
-    .catch(() => res.send({ message: 'Произошла ошибка' }));
+    .orFail(() => {
+      throw new NotFoundError('Пользователь не найден');
+    })
+    .then((user) => res.status(200).send({ data: user }))
+    .catch((err) => {
+      if (err.statusCode === 400 || err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Переданы некорректные данные' });
+      } else if (err.statusCode === 404 || err.name === 'CastError') {
+        res.status(404).send({ message: err.errorMessage });
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' });
+      }
+    });
 };
 
 module.exports.setAvatar = (req, res) => {
@@ -54,6 +63,17 @@ module.exports.setAvatar = (req, res) => {
   const userId = req.user._id;
 
   User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
-    .then((url) => res.send({ data: url }))
-    .catch(() => res.send({ message: 'Произошла ошибка' }));
+    .orFail(() => {
+      throw new NotFoundError('Пользователь не найден');
+    })
+    .then((url) => res.status(200).send({ data: url }))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Переданы некорректные данные' })
+      } else if (err.statusCode === 404) {
+        res.status(404).send({ message: err.errorMessage });
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' });
+      }
+    });
 };

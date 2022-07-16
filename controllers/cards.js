@@ -1,7 +1,5 @@
 const Card = require('../models/card');
-const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
-// const DefaultError = require('../errors/DefaultError');
 
 module.exports.getCards = (req, res) => {
   Card.find({})
@@ -14,22 +12,32 @@ module.exports.createCard = (req, res) => {
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .then((card) => res.send({ data: card }))
-    .catch(() => res.send({ message: 'Произошла ошибка' }));
+    .then((card) => res.status(200).send({ data: card }))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные' })
+      }
+      res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
 
 module.exports.deleteCard = (req, res) => {
-  const userId = req.user._id;
   const { _cardId } = req.params;
 
-  Card.findById(_cardId)
-    .then((card) => {
-      if (card.owner.toString() === userId) {
-        Card.findByIdAndRemove(_cardId)
-          .then((cardData) => res.send(cardData));
-      }
+  Card.findByIdAndRemove(_cardId)
+    .orFail(() => {
+      throw new NotFoundError('Карточка не найдена');
     })
-    .catch(() => res.send({ message: 'Произошла ошибка' }));
+    .then((card) => res.status(200).send({ data: card }))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Переданы некорректные данные' })
+      } else if (err.statusCode === 404) {
+        res.status(404).send({ message: err.errorMessage });
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' });
+      }
+    });
 };
 
 module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(
