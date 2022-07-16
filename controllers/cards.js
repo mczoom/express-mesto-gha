@@ -38,7 +38,7 @@ module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(
   { new: true },
 )
   .orFail(() => {
-    throw new NotFoundError('Карточка не найдена')
+    throw new NotFoundError('Карточка не найдена');
   })
   .then((likes) => res.status(200).send({ data: likes }))
   .catch((err) => {
@@ -56,5 +56,16 @@ module.exports.dislikeCard = (req, res) => Card.findByIdAndUpdate(
   { $pull: { likes: req.user._id } },
   { new: true },
 )
-  .then((likes) => res.send({ data: likes }))
-  .catch(() => res.send({ message: 'Произошла ошибка' }));
+  .orFail(() => {
+    throw new NotFoundError('Карточка не найдена');
+  })
+  .then((likes) => res.status(200).send({ data: likes }))
+  .catch((err) => {
+    if (err.name === 'CastError') {
+      res.status(400).send({ message: 'Некорректные данные' });
+    } else if (err.statusCode === 404) {
+      res.status(404).send({ message: 'Произошла ошибка' });
+    } else {
+      res.status(500).send({ message: 'Произошла ошибка' });
+    }
+  });
