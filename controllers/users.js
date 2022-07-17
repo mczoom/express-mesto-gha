@@ -28,7 +28,7 @@ module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .then((user) => res.status(200).send({ data: user }))
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные' });
@@ -46,11 +46,11 @@ module.exports.updateUserInfo = (req, res) => {
     .orFail(() => {
       throw new NotFoundError('Пользователь не найден');
     })
-    .then((user) => res.status(200).send({ data: user }))
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.statusCode === 400 || err.name === 'ValidationError') {
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные' });
-      } else if (err.statusCode === 404 || err.name === 'CastError') {
+      } else if (err.statusCode === 404) {
         res.status(404).send({ message: err.errorMessage });
       } else {
         res.status(500).send({ message: 'Ошибка сервера' });
@@ -66,9 +66,9 @@ module.exports.setAvatar = (req, res) => {
     .orFail(() => {
       throw new NotFoundError('Пользователь не найден');
     })
-    .then((url) => res.status(200).send({ data: url }))
+    .then((url) => res.send({ data: url }))
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные' });
       } else if (err.statusCode === 404) {
         res.status(404).send({ message: err.errorMessage });

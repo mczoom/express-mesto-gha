@@ -12,7 +12,7 @@ module.exports.createCard = (req, res) => {
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .then((card) => res.status(200).send({ data: card }))
+    .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные' });
@@ -29,7 +29,7 @@ module.exports.deleteCard = (req, res) => {
     .orFail(() => {
       throw new NotFoundError('Карточка не найдена');
     })
-    .then((card) => res.status(200).send({ data: card }))
+    .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(400).send({ message: 'Переданы некорректные данные' });
@@ -49,7 +49,7 @@ module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(
   .orFail(() => {
     throw new NotFoundError('Карточка не найдена');
   })
-  .then((likes) => res.status(200).send({ data: likes }))
+  .then((likes) => res.send({ data: likes }))
   .catch((err) => {
     if (err.name === 'CastError') {
       res.status(400).send({ message: 'Некорректные данные' });
@@ -68,7 +68,7 @@ module.exports.dislikeCard = (req, res) => Card.findByIdAndUpdate(
   .orFail(() => {
     throw new NotFoundError('Карточка не найдена');
   })
-  .then((likes) => res.status(200).send({ data: likes }))
+  .then((likes) => res.send({ data: likes }))
   .catch((err) => {
     if (err.name === 'CastError') {
       res.status(400).send({ message: 'Некорректные данные' });
