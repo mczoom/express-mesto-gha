@@ -1,9 +1,11 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
+const { login, createUser } = require('./controllers/users');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -22,6 +24,9 @@ app.use((req, res, next) => {
   };
   next();
 });
+
+app.post('/signin', login);
+app.post('/signup', createUser);
 
 app.use('/', usersRouter);
 app.use('/', cardsRouter);
