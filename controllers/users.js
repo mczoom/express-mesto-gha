@@ -84,22 +84,16 @@ module.exports.updateUserInfo = (req, res, next) => {
     .catch(next);
 };
 
-module.exports.setAvatar = (req, res) => {
+module.exports.setAvatar = (req, res, next) => {
   const { avatar } = req.body;
   const userId = req.user._id;
 
   User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
-    .orFail(() => {
-      throw new NotFoundError('Пользователь не найден');
-    })
     .then((url) => res.send({ data: url }))
     .catch((err) => {
-      if (err.name === 'CastError' || err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
-      } else if (err.statusCode === 404) {
-        res.status(404).send({ message: err.errorMessage });
-      } else {
-        res.status(500).send({ message: 'Ошибка сервера' });
+      if (err.name === 'ValidationError') {
+        throw new BadRequest(err.message);
       }
-    });
+    })
+    .catch(next);
 };
