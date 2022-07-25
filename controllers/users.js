@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
 const ExistedLoginRegError = require('../errors/ExistedLoginRegError');
-const BadRequest = require('../errors/BadRequest');
+const BadRequestError = require('../errors/BadRequestError');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -78,7 +78,7 @@ module.exports.updateUserInfo = (req, res, next) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequest(err.message);
+        throw new BadRequestError(err.message);
       }
     })
     .catch(next);
@@ -92,7 +92,7 @@ module.exports.setAvatar = (req, res, next) => {
     .then((url) => res.send({ data: url }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequest(err.message);
+        throw new BadRequestError(err.message);
       }
     })
     .catch(next);
