@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
+const ExistedLoginRegError = require('../errors/ExistedLoginRegError');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -55,18 +56,17 @@ module.exports.getCurrentUser = (req, res) => {
     .then((user) => res.send({ user }));
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
   bcrypt.hash(password, 10)
     .then((hash) => User.create({ name, about, avatar, email, password: hash }))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
-      } else {
-        res.status(500).send({ message: 'Ошибка сервера' });
+      if (err.code === 11000) {
+        throw new ExistedLoginRegError('Пользователь с таким email уже существует');
       }
-    });
+    })
+    .catch(next);
 };
 
 module.exports.updateUserInfo = (req, res) => {
