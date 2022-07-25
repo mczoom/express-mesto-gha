@@ -8,7 +8,7 @@ const BadRequestError = require('../errors/BadRequestError');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
@@ -22,8 +22,10 @@ module.exports.login = (req, res) => {
         httpOnly: true,
       })
         .send({ message: 'Авторизация прошла успешно!' });
-    });
+    })
+    .catch(next);
 };
+console.log(JWT_SECRET);
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
@@ -61,7 +63,9 @@ module.exports.createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
   bcrypt.hash(password, 10)
     .then((hash) => User.create({ name, about, avatar, email, password: hash }))
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send({
+      data: { name: user.name, about: user.about, avatar: user.avatar, email: user.email },
+    }))
     .catch((err) => {
       if (err.code === 11000) {
         throw new ExistedLoginRegError('Пользователь с таким email уже зарегистрирован');
