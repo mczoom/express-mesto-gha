@@ -46,6 +46,15 @@ module.exports.getUser = (req, res) => {
     });
 };
 
+module.exports.getCurrentUser = (req, res) => {
+  User.findById(req.user._id)
+    .orFail()
+    .catch(() => {
+      throw new NotFoundError('Пользователь не найден');
+    })
+    .then((user) => res.send({ user }));
+};
+
 module.exports.createUser = (req, res) => {
   const { name, about, avatar, email, password } = req.body;
   bcrypt.hash(password, 10)
