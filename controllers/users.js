@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
 const ExistedLoginRegError = require('../errors/ExistedLoginRegError');
+const BadRequest = require('../errors/BadRequest');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -63,30 +64,24 @@ module.exports.createUser = (req, res, next) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.code === 11000) {
-        throw new ExistedLoginRegError('Пользователь с таким email уже существует');
+        throw new ExistedLoginRegError('Пользователь с таким email уже зарегистрирован');
       }
     })
     .catch(next);
 };
 
-module.exports.updateUserInfo = (req, res) => {
+module.exports.updateUserInfo = (req, res, next) => {
   const { name, about } = req.body;
   const userId = req.user._id;
 
   User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
-    .orFail(() => {
-      throw new NotFoundError('Пользователь не найден');
-    })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'CastError' || err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
-      } else if (err.statusCode === 404) {
-        res.status(404).send({ message: err.errorMessage });
-      } else {
-        res.status(500).send({ message: 'Ошибка сервера' });
+      if (err.name === 'ValidationError') {
+        throw new BadRequest(err.message);
       }
-    });
+    })
+    .catch(next);
 };
 
 module.exports.setAvatar = (req, res) => {
