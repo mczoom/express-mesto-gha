@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
-const auth = require('./middlewares/auth');
+//const auth = require('./middlewares/auth');
 
 const { PORT = 3000 } = process.env;
 const app = express();
