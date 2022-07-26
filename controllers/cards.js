@@ -1,10 +1,10 @@
 const Card = require('../models/card');
 const NotFoundError = require('../errors/NotFoundError');
 
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
+    .catch(next);
 };
 
 module.exports.createCard = (req, res) => {
