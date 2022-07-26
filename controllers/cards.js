@@ -1,5 +1,8 @@
 const Card = require('../models/card');
 const NotFoundError = require('../errors/NotFoundError');
+const ExistedLoginRegError = require('../errors/ExistedLoginRegError');
+const BadRequestError = require('../errors/BadRequestError');
+const ForbiddenError = require('../errors/ForbiddenError');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
@@ -7,7 +10,7 @@ module.exports.getCards = (req, res, next) => {
     .catch(next);
 };
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
 
@@ -15,30 +18,30 @@ module.exports.createCard = (req, res) => {
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
-      } else {
-        res.status(500).send({ message: 'Ошибка сервера' });
+        throw new BadRequestError(err.message);
       }
-    });
+    })
+    .catch(next);
 };
 
-module.exports.deleteCard = (req, res) => {
+module.exports.deleteCard = (req, res, next) => {
   const { cardId } = req.params;
+  const userId = req.user._id;
 
-  Card.findByIdAndRemove(cardId)
-    .orFail(() => {
+  Card.findById(cardId)
+    .orFail()
+    .catch(() => {
       throw new NotFoundError('Карточка не найдена');
     })
-    .then((card) => res.send({ data: card }))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
-      } else if (err.statusCode === 404) {
-        res.status(404).send({ message: err.errorMessage });
+    .then((card) => {
+      if (card.owner.toString() === userId) {
+        Card.findByIdAndRemove(cardId)
+          .then((data) => res.send(data));
       } else {
-        res.status(500).send({ message: 'Ошибка сервера' });
+        throw new ForbiddenError('Действие запрещено');
       }
-    });
+    })
+    .catch(next);
 };
 
 module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(
