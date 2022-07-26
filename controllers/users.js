@@ -43,13 +43,14 @@ module.exports.getUser = (req, res, next) => {
     .catch(next);
 };
 
-module.exports.getCurrentUser = (req, res) => {
+module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .orFail()
     .catch(() => {
       throw new NotFoundError('Пользователь не найден');
     })
-    .then((user) => res.send({ user }));
+    .then((user) => res.send({ user }))
+    .catch(next);
 };
 
 module.exports.createUser = (req, res, next) => {
