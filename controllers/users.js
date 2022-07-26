@@ -32,21 +32,15 @@ module.exports.getUsers = (req, res, next) => {
     .catch(next);
 };
 
-module.exports.getUser = (req, res) => {
+module.exports.getUser = (req, res, next) => {
   User.findById(req.params.userId)
-    .orFail(() => {
-      throw new NotFoundError('Пользователь не найден');
-    })
-    .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Некорректные данные' });
-      } else if (err.statusCode === 404) {
-        res.status(404).send({ message: 'Произошла ошибка' });
-      } else {
-        res.status(500).send({ message: 'Ошибка сервера' });
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Пользователь не найден');
       }
-    });
+      res.send({ data: user });
+    })
+    .catch(next);
 };
 
 module.exports.getCurrentUser = (req, res) => {
@@ -62,7 +56,9 @@ module.exports.createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
   bcrypt.hash(password, 10)
     .then((hash) => User.create({ name, about, avatar, email, password: hash }))
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send({
+      data: { name: user.name, about: user.about, avatar: user.avatar, email: user.email },
+    }))
     .catch((err) => {
       if (err.code === 11000) {
         throw new ExistedLoginRegError('Пользователь с таким email уже зарегистрирован');
