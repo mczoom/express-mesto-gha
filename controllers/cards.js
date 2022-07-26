@@ -1,6 +1,5 @@
 const Card = require('../models/card');
 const NotFoundError = require('../errors/NotFoundError');
-const ExistedLoginRegError = require('../errors/ExistedLoginRegError');
 const BadRequestError = require('../errors/BadRequestError');
 const ForbiddenError = require('../errors/ForbiddenError');
 
@@ -44,7 +43,7 @@ module.exports.deleteCard = (req, res, next) => {
     .catch(next);
 };
 
-module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(
+module.exports.likeCard = (req, res, next) => Card.findByIdAndUpdate(
   req.params.cardId,
   { $addToSet: { likes: req.user._id } },
   { new: true },
@@ -53,17 +52,9 @@ module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(
     throw new NotFoundError('Карточка не найдена');
   })
   .then((likes) => res.send({ data: likes }))
-  .catch((err) => {
-    if (err.name === 'CastError') {
-      res.status(400).send({ message: 'Некорректные данные' });
-    } else if (err.statusCode === 404) {
-      res.status(404).send({ message: 'Произошла ошибка' });
-    } else {
-      res.status(500).send({ message: 'Ошибка сервера' });
-    }
-  });
+  .catch(next);
 
-module.exports.dislikeCard = (req, res) => Card.findByIdAndUpdate(
+module.exports.dislikeCard = (req, res, next) => Card.findByIdAndUpdate(
   req.params.cardId,
   { $pull: { likes: req.user._id } },
   { new: true },
@@ -72,12 +63,4 @@ module.exports.dislikeCard = (req, res) => Card.findByIdAndUpdate(
     throw new NotFoundError('Карточка не найдена');
   })
   .then((likes) => res.send({ data: likes }))
-  .catch((err) => {
-    if (err.name === 'CastError') {
-      res.status(400).send({ message: 'Некорректные данные' });
-    } else if (err.statusCode === 404) {
-      res.status(404).send({ message: 'Произошла ошибка' });
-    } else {
-      res.status(500).send({ message: 'Ошибка сервера' });
-    }
-  });
+  .catch(next);
