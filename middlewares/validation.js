@@ -45,7 +45,3 @@ module.exports.idValidation = celebrate({
     _id: Joi.string().alphanum().length(24).hex(),
   }),
 });
-
-module.exports = {
-  linkRegExp,
-};
