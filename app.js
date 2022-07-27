@@ -24,13 +24,13 @@ app.use(cookieParser());
 app.post('/signin', loginValidation, login);
 app.post('/signup', userValidation, createUser);
 
+app.use(auth);
 app.use('/', usersRouter);
 app.use('/', cardsRouter);
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Страница не найдена' });
 });
 
-app.use(auth);
 app.use(errors());
 
 app.use((err, req, res, next) => {
