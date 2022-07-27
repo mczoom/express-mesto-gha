@@ -3,9 +3,7 @@ const {
   getUsers, getUser, updateUserInfo, setAvatar, getCurrentUser,
 } = require('../controllers/users');
 const { userInfoValidation, idValidation, avatarValidation } = require('../middlewares/validation');
-const auth = require('../middlewares/auth');
 
-usersRouter.use(auth);
 usersRouter.get('/users', getUsers);
 usersRouter.get('/users/:userId', idValidation, getUser);
 usersRouter.get('/users/me', getCurrentUser);
