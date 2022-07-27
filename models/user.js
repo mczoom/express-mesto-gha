@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const { isEmail } = require('validator');
 const bcrypt = require('bcryptjs');
 const AuthoriseError = require('../errors/AuthoriseError');
+const { linkRegExp } = require('../middlewares/validation');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -18,6 +19,12 @@ const userSchema = new mongoose.Schema({
   },
   avatar: {
     type: String,
+    validate: {
+      validator(link) {
+        return linkRegExp.test(link);
+      },
+      message: 'Введите ссылку',
+    },
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
   },
   email: {
