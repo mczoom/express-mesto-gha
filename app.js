@@ -9,7 +9,7 @@ const cardsRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const { loginValidation, userValidation } = require('./middlewares/validation');
 const { errorHandler } = require('./middlewares/errorHandler');
-// const auth = require('./middlewares/auth');
+const { auth } = require('./middlewares/auth');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -25,7 +25,7 @@ app.use(cookieParser());
 app.post('/signin', loginValidation, login);
 app.post('/signup', userValidation, createUser);
 
-// app.use(auth);
+app.use(auth);
 app.use('/', usersRouter);
 app.use('/', cardsRouter);
 app.use('*', (req, res) => {
