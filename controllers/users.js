@@ -35,13 +35,15 @@ module.exports.getUsers = (req, res, next) => {
 
 module.exports.getUser = (req, res, next) => {
   User.findById(req.params.userId)
-    .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Пользователь не найден');
+    .orFail(() => next(new NotFoundError('Пользователь не найден')))
+    .then((user) => res.send({ data: user }))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Передан некорректные данные'));
+      } else {
+        next(err);
       }
-      res.send({ data: user });
-    })
-    .catch(next);
+    });
 };
 
 module.exports.getCurrentUser = (req, res, next) => {
