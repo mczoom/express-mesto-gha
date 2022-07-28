@@ -4,7 +4,7 @@ const BadRequestError = require('../errors/BadRequestError');
 const ForbiddenError = require('../errors/ForbiddenError');
 
 module.exports.getCards = (req, res, next) => {
-  Card.find({})
+  Card.find({}).populate('owner')
     .then((cards) => res.send({ data: cards }))
     .catch(next);
 };
