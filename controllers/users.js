@@ -6,7 +6,7 @@ const NotFoundError = require('../errors/NotFoundError');
 const ExistedLoginRegError = require('../errors/ExistedLoginRegError');
 const BadRequestError = require('../errors/BadRequestError');
 
-const { NODE_ENV, JWT_SECRET } = process.env;
+const { NODE_ENV, JWT_SECRET = 'secret' } = process.env;
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
@@ -20,8 +20,9 @@ module.exports.login = (req, res, next) => {
       res.cookie('jwt', token, {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
-      })
-        .send({ message: 'Авторизация прошла успешно!' });
+      });
+      res.send({ message: 'Авторизация прошла успешно!' });
+      res.end();
     })
     .catch(next);
 };
