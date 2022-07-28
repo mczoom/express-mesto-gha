@@ -14,16 +14,8 @@ module.exports.createCard = (req, res, next) => {
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .then((card) => res.send({
-      name: card.name, link: card.link, owner: card.owner, likes: card.likes, _id: card._id,
-    }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные'));
-      } else {
-        next(err);
-      }
-    });
+    .then((card) => res.send({ data: card }))
+    .catch(next);
 };
 
 module.exports.deleteCard = (req, res, next) => {
