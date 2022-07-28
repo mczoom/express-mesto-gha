@@ -16,6 +16,7 @@ const cardsSchema = new mongoose.Schema({
         return isURL(url);
       },
       message: 'Введите ссылку',
+    },
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
