@@ -8,6 +8,7 @@ const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const { loginValidation, userValidation } = require('./middlewares/validation');
+const { errorHandler } = require('./middlewares/errorHandler');
 // const auth = require('./middlewares/auth');
 
 const { PORT = 3000 } = process.env;
@@ -32,15 +33,7 @@ app.use('*', (req, res) => {
 });
 
 app.use(errors());
-
-app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
-
-  res.status(statusCode).send({
-    message: statusCode === 500 ? 'Ошибка сервера' : message,
-  });
-  next();
-});
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
