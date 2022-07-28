@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
 const AuthoriseError = require('../errors/AuthoriseError');
 
-const { JWT_SECRET = 'super-secret-key' } = process.env;
+// const { JWT_SECRET = 'super-secret-key' } = process.env;
+const JWT_SECRET = 'super-secret-key';
 
 module.exports.auth = (req, res, next) => {
   if (!req.cookies.jwt) {
