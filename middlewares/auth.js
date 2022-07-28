@@ -5,7 +5,7 @@ const { JWT_SECRET = 'super-secret-key' } = process.env;
 
 module.exports.auth = (req, res, next) => {
   if (!req.cookies.jwt) {
-    return next(new AuthoriseError('Необходима авторизация'));
+    next(new AuthoriseError('Необходима авторизация'));
   }
 
   const token = req.cookies.jwt;
@@ -14,7 +14,7 @@ module.exports.auth = (req, res, next) => {
   try {
     payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
-    return next(new AuthoriseError('Необходима авторизация.'));
+    next(new AuthoriseError('Необходима авторизация.'));
   }
 
   req.user = payload;
