@@ -14,20 +14,13 @@ module.exports.createCard = (req, res, next) => {
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .then((card) => {
-      Card.findById(card._id)
-        .then((newCard) => {
-          res.send({ data: newCard });
-        })
-        .catch(next);
-    })
+    .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные'));
-      } else {
-        next(err);
       }
-    });
+    })
+    .catch(next);
 };
 
 module.exports.deleteCard = (req, res, next) => {
