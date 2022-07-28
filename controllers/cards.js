@@ -4,7 +4,7 @@ const BadRequestError = require('../errors/BadRequestError');
 const ForbiddenError = require('../errors/ForbiddenError');
 
 module.exports.getCards = (req, res, next) => {
-  Card.find({})
+  Card.find({}).populate('owner')
     .then((cards) => res.send({ data: cards }))
     .catch(next);
 };
@@ -14,10 +14,16 @@ module.exports.createCard = (req, res, next) => {
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      Card.findById(card._id).populate('owner')
+        .then((newCard) => {
+          res.send({ data: newCard });
+        })
+        .catch(next);
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Введены некорректные данные'));
+        next(new BadRequestError('Переданы некорректные данные'));
       } else {
         next(err);
       }
@@ -49,11 +55,9 @@ module.exports.likeCard = (req, res, next) => {
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
-  )
-    .orFail(() => {
-      next(new NotFoundError('Карточка не найдена'));
-    })
-    .then((likes) => res.send({ data: likes }))
+  ).populate('likes').populate('owner')
+    .orFail(() => next(new NotFoundError('Карточка не найдена')))
+    .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Переданы некорректные данные'));
@@ -63,13 +67,19 @@ module.exports.likeCard = (req, res, next) => {
     });
 };
 
-module.exports.dislikeCard = (req, res, next) => Card.findByIdAndUpdate(
-  req.params.cardId,
-  { $pull: { likes: req.user._id } },
-  { new: true },
-)
-  .orFail(() => {
-    throw new NotFoundError('Карточка не найдена');
-  })
-  .then((likes) => res.send({ data: likes }))
-  .catch(next);
+module.exports.dislikeCard = (req, res, next) => {
+  Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $pull: { likes: req.user._id } },
+    { new: true },
+  ).populate('likes').populate('owner')
+    .orFail(() => next(new NotFoundError('Карточка не найдена')))
+    .then((card) => res.send({ data: card }))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Переданы некорректные данные'));
+      } else {
+        next(err);
+      }
+    });
+};
