@@ -4,18 +4,18 @@ const BadRequestError = require('../errors/BadRequestError');
 const ForbiddenError = require('../errors/ForbiddenError');
 
 module.exports.getCards = (req, res, next) => {
-  Card.find({}).populate('owner')
+  Card.find({})
     .then((cards) => res.send({ data: cards }))
     .catch(next);
 };
 
 module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
-  const owner = req.user._id;
+  const owner = req.user;
 
   Card.create({ name, link, owner })
     .then((card) => {
-      Card.findById(card._id).populate('owner')
+      Card.findById(card._id)
         .then((newCard) => {
           res.send({ data: newCard });
         })
@@ -55,7 +55,7 @@ module.exports.likeCard = (req, res, next) => {
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
-  ).populate('likes').populate('owner')
+  )
     .orFail(() => next(new NotFoundError('Карточка не найдена')))
     .then((card) => res.send({ data: card }))
     .catch((err) => {
@@ -72,7 +72,7 @@ module.exports.dislikeCard = (req, res, next) => {
     req.params.cardId,
     { $pull: { likes: req.user._id } },
     { new: true },
-  ).populate('likes').populate('owner')
+  )
     .orFail(() => next(new NotFoundError('Карточка не найдена')))
     .then((card) => res.send({ data: card }))
     .catch((err) => {
