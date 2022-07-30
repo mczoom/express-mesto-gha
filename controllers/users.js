@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
-const ExistedLoginRegError = require('../errors/ExistedLoginRegError');
+const ExistingLoginRegError = require('../errors/ExistingLoginRegError');
 const BadRequestError = require('../errors/BadRequestError');
 
 module.exports.login = (req, res, next) => {
@@ -58,10 +58,11 @@ module.exports.createUser = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.code === 11000) {
-        throw new ExistedLoginRegError('Пользователь с таким email уже зарегистрирован');
-      }
-    })
-    .catch(next);
+        next(new ExistingLoginRegError('Пользователь с таким email уже зарегистрированн'));
+      } else if (err.name === 'ValidationError') {
+        next(new BadRequestError('Переданы некорректные данные'));
+      } else next(err);
+    });
 };
 
 module.exports.updateUserInfo = (req, res, next) => {
