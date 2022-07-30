@@ -6,9 +6,6 @@ const NotFoundError = require('../errors/NotFoundError');
 const ExistedLoginRegError = require('../errors/ExistedLoginRegError');
 const BadRequestError = require('../errors/BadRequestError');
 
-// const { NODE_ENV } = process.env;
-// const JWT_SECRET = 'secret';
-
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
@@ -18,7 +15,6 @@ module.exports.login = (req, res, next) => {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
       }).send({ token });
-      // res.send({ message: 'Авторизация прошла успешно!' });
     })
     .catch(next);
 };
@@ -44,7 +40,6 @@ module.exports.getUser = (req, res, next) => {
 
 module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
-    // .orFail(() => next(new NotFoundError('Пользователь не найден')))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -74,7 +69,6 @@ module.exports.updateUserInfo = (req, res, next) => {
   const userId = req.user._id;
 
   User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
-    .orFail(() => next(new NotFoundError('Пользователь не найден')))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
