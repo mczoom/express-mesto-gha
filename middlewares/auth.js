@@ -5,20 +5,20 @@ const AuthoriseError = require('../errors/AuthoriseError');
 const JWT_SECRET = 'super-secret-key';
 
 module.exports.auth = (req, res, next) => {
-  if (!req.cookies.jwt) {
-    next(new AuthoriseError('Необходима авторизация'));
-  }
-
   const token = req.cookies.jwt;
-  let payload;
+  if (!token) {
+    throw new AuthoriseError('Необходима авторизация');
+  } else {
+    let payload;
 
-  try {
-    payload = jwt.verify(token, JWT_SECRET);
-  } catch (err) {
-    next(new AuthoriseError('Необходима авторизация.'));
+    try {
+      payload = jwt.verify(token, JWT_SECRET);
+    } catch (err) {
+      throw new AuthoriseError('Необходима авторизация');
+    }
+
+    req.user = payload;
+
+    next();
   }
-
-  req.user = payload;
-
-  return next();
 };
