@@ -1,4 +1,4 @@
-// require('dotenv').config();
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
@@ -25,7 +25,7 @@ app.use(cookieParser());
 
 app.post('/signin', loginValidation, login);
 app.post('/signup', userValidation, createUser);
-// app.use(auth);
+
 app.use('/', auth, usersRouter);
 app.use('/', auth, cardsRouter);
 app.use('/*', () => {

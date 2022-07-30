@@ -12,21 +12,18 @@ module.exports.getCards = (req, res, next) => {
 module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
-
   Card.create({ name, link, owner })
     .then((card) => res.send({ data: card }))
     .catch(next);
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  // const { cardId } = req.params;
-  // const userId = req.user._id;
-  Card.findById(req.params.cardId)
+  const { cardId } = req.params;
+  Card.findById(cardId)
     .then((card) => {
       if (!card) {
         throw new NotFoundError('Карточка не найдена');
       } else if (JSON.stringify(req.user._id) === JSON.stringify(card.owner._id)) {
-        console.log(card.owner._id);
         Card.findByIdAndRemove(req.params.cardId)
           .then((data) => res.status(200).send(data));
       } else {
