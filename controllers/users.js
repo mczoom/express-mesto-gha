@@ -88,7 +88,7 @@ module.exports.setAvatar = (req, res, next) => {
     .then((url) => res.send(url))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Неверные данные'));
+        next(new BadRequestError('Переданы некорректные данные'));
       } else {
         next(err);
       }
