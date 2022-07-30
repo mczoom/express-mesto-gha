@@ -6,23 +6,19 @@ const NotFoundError = require('../errors/NotFoundError');
 const ExistedLoginRegError = require('../errors/ExistedLoginRegError');
 const BadRequestError = require('../errors/BadRequestError');
 
-const { NODE_ENV, JWT_SECRET = 'secret' } = process.env;
+// const { NODE_ENV } = process.env;
+// const JWT_SECRET = 'secret';
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign(
-        { _id: user._id },
-        NODE_ENV === 'production' ? JWT_SECRET : 'super-strong-secret',
-        { expiresIn: '7d' },
-      );
+      const token = jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '7d' });
       res.cookie('jwt', token, {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
-      });
-      res.send({ message: 'Авторизация прошла успешно!' });
-      res.end();
+      }).send({ token });
+      // res.send({ message: 'Авторизация прошла успешно!' });
     })
     .catch(next);
 };
