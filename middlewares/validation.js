@@ -40,8 +40,14 @@ module.exports.avatarValidation = celebrate({
   }),
 });
 
-module.exports.idValidation = celebrate({
+module.exports.userIdValidation = celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().alphanum().length(24).hex(),
+    userId: Joi.string().hex().length(24).required(),
+  }),
+});
+
+module.exports.cardIdValidation = celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().hex().length(24).required(),
   }),
 });
