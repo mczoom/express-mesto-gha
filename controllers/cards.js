@@ -19,23 +19,24 @@ module.exports.createCard = (req, res, next) => {
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  const { cardId } = req.params;
-  const userId = req.user._id;
-
-  Card.findById(cardId)
-    .orFail()
-    .catch(() => {
-      throw new NotFoundError('Карточка не найдена');
-    })
+  // const { cardId } = req.params;
+  // const userId = req.user._id;
+  Card.findById(req.params.cardId)
     .then((card) => {
-      if (card.owner.toString() === userId) {
-        Card.findByIdAndRemove(cardId)
-          .then((data) => res.send(data));
+      if (!card) {
+        throw new NotFoundError('Карточка не найдена');
+      } else if (JSON.stringify(req.user._id) === JSON.stringify(card.owner)) {
+        Card.findByIdAndRemove(req.params.cardId)
+          .then((data) => res.status(200).send(data));
       } else {
-        throw new ForbiddenError('Действие запрещено');
+        throw new ForbiddenError('Удаление чужой карточки невозможно');
       }
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Переданы некорректные данные'));
+      } else next(err);
+    });
 };
 
 module.exports.likeCard = (req, res, next) => {
