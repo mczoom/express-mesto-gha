@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
-const ExistingLoginRegError = require('../errors/ExistingLoginRegError');
+const RegistrationError = require('../errors/RegistrationError');
 const BadRequestError = require('../errors/BadRequestError');
 
 module.exports.login = (req, res, next) => {
@@ -58,7 +58,7 @@ module.exports.createUser = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.code === 11000) {
-        next(new ExistingLoginRegError('Пользователь с таким email уже зарегистрированн'));
+        next(new RegistrationError('Пользователь с таким email уже зарегистрированн'));
       } else if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные'));
       } else next(err);
@@ -70,7 +70,7 @@ module.exports.updateUserInfo = (req, res, next) => {
   const userId = req.user._id;
 
   User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные'));
