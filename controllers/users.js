@@ -73,11 +73,10 @@ module.exports.updateUserInfo = (req, res, next) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные'));
-      } else {
-        next(err);
+        throw new BadRequestError('Переданы некорректные данные');
       }
-    });
+    })
+    .catch(next);
 };
 
 module.exports.setAvatar = (req, res, next) => {
