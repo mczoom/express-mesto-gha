@@ -44,9 +44,9 @@ module.exports.getCurrentUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Переданы некорректные данные'));
-        return;
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
