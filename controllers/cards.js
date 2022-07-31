@@ -43,14 +43,17 @@ module.exports.likeCard = (req, res, next) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(new NotFoundError('Карточка не найдена'))
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      if (!card) {
+        throw new NotFoundError('Карточка не найдена');
+      } else {
+        res.send({ data: card });
+      }
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Переданы некорректные данные'));
-      } else {
-        next(err);
-      }
+      } else next(err);
     });
 };
 
