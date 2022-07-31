@@ -27,15 +27,13 @@ module.exports.getUsers = (req, res, next) => {
 
 module.exports.getUser = (req, res, next) => {
   User.findById(req.params.userId)
-    .orFail(new NotFoundError('Пользователь не найден'))
-    .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequestError('Переданы некорректные данные'));
-      } else {
-        next(err);
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Пользователь не найден');
       }
-    });
+      res.send({ data: user });
+    })
+    .catch(next);
 };
 
 module.exports.getCurrentUser = (req, res, next) => {
@@ -86,7 +84,9 @@ module.exports.setAvatar = (req, res, next) => {
   const userId = req.user._id;
 
   User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
-    .orFail(new NotFoundError('Пользователь не найден'))
+    .orFail(() => {
+      throw new NotFoundError('Карточка не найдена');
+    })
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
