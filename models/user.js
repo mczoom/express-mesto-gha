@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
-const { isEmail, isURL } = require('validator');
+const { isEmail } = require('validator');
 const bcrypt = require('bcryptjs');
 const AuthoriseError = require('../errors/AuthoriseError');
+const { linkRegExp } = require('../middlewares/validation');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -20,7 +21,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     validate: {
       validator(url) {
-        return isURL(url, { required_protocol: true });
+        return linkRegExp.test(url);
       },
       message: 'Введите ссылку',
     },
