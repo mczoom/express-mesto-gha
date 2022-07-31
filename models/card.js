@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
-// const { isUrl } = require('validator');
-const { linkRegExp } = require('../middlewares/validation');
+const { isURL } = require('validator');
 
 const cardsSchema = new mongoose.Schema({
   name: {
@@ -13,8 +12,8 @@ const cardsSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator(link) {
-        return linkRegExp.test(link);
+      validator(url) {
+        return isURL(url, { required_protocol: true });
       },
       message: 'Введите ссылку',
     },
