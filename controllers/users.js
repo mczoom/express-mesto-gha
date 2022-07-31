@@ -38,12 +38,14 @@ module.exports.getUser = (req, res, next) => {
 
 module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail()
-    .catch(() => {
-      throw new NotFoundError('Пользователь не найден');
-    })
-    .then((user) => res.send({ user }))
-    .catch(next);
+    .then((user) => res.send({ data: user }))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Переданы некорректные данные'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 module.exports.createUser = (req, res, next) => {
@@ -58,7 +60,9 @@ module.exports.createUser = (req, res, next) => {
         next(new RegistrationError('Пользователь с таким email уже зарегистрированн'));
       } else if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные'));
-      } else next(err);
+      } else {
+        next(err);
+      }
     });
 };
 
@@ -82,7 +86,7 @@ module.exports.setAvatar = (req, res, next) => {
   const userId = req.user._id;
 
   User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
-    .orFail(() => next(new NotFoundError('Пользователь не найден')))
+    .orFail(new NotFoundError('Пользователь не найден'))
     .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
