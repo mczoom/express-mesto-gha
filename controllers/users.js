@@ -86,7 +86,7 @@ module.exports.setAvatar = (req, res, next) => {
 
   User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
     .orFail(() => next(new NotFoundError('Пользователь не найден')))
-    .then((url) => res.send(url))
+    .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные'));
