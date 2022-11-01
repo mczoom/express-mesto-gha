@@ -1,16 +1,21 @@
-[![Tests](https://github.com/mczoom/express-mesto-gha/actions/workflows/tests-13-sprint.yml/badge.svg)](https://github.com/mczoom/express-mesto-gha/actions/workflows/tests-13-sprint.yml) [![Tests](https://github.com/mczoom/express-mesto-gha/actions/workflows/tests-14-sprint.yml/badge.svg)](https://github.com/mczoom/express-mesto-gha/actions/workflows/tests-14-sprint.yml)
-# Проект Mesto фронтенд + бэкенд
+# «Место» (backend)
+Сервис для публикации фотографий.
+
+Серверная часть проекта [Место](https://github.com/mczoom/react-mesto-auth).
 
 
-## Директории
+## Использованные технологии:
+- Node.js
+- Express.js
+- MongoDB
 
-`/routes` — папка с файлами роутера  
-`/controllers` — папка с файлами контроллеров пользователя и карточки   
-`/models` — папка с файлами описания схем пользователя и карточки  
-  
-Остальные директории вспомогательные, создаются при необходимости разработчиком
 
-## Запуск проекта
 
-`npm run start` — запускает сервер   
-`npm run dev` — запускает сервер с hot-reload
+### Инструкция по запуску
+#### `npm run start`
+
+запускает сервер
+
+#### `npm run dev`
+
+запускает сервер с hot-reload
